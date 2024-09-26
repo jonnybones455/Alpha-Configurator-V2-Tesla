@@ -65,3 +65,63 @@ footer button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
 }
+/* Configurator Styles */
+#configurator {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.config-step {
+    margin-bottom: 50px;
+}
+
+.config-step h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.config-step p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.option-button {
+    flex: 1 1 calc(50% - 20px);
+    background-color: #f0f0f0;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.option-button.selected {
+    border-color: #0099cc;
+    background-color: #e0f7ff;
+}
+
+.option-button img {
+    max-width: 100%;
+    height: auto;
+}
+
+.option-button span {
+    display: block;
+    margin-top: 10px;
+    font-size: 16px;
+    color: #000000;
+}
+
+@media screen and (max-width: 600px) {
+    .option-button {
+        flex: 1 1 100%;
+    }
+}
