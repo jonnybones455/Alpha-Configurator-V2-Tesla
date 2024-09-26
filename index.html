@@ -6,25 +6,35 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="container">
-        <!-- Antenna Display -->
-        <div id="display">
-            <div id="image-container">
-                <!-- Layered images will be inserted here -->
-            </div>
-        </div>
+    <div id="configurator">
+        <!-- Header -->
+        <header>
+            <h1>Design Your Own Telecom Deployment</h1>
+        </header>
 
-        <!-- Options Panel -->
-        <div id="options">
-            <h1>Alpha Wireless Deployment Creator</h1>
-            <div class="option-group" id="pole-group">
-                <h2>Pole</h2>
-                <div class="options" id="pole-options"></div>
-            </div>
-            <!-- Repeat for other options -->
-        </div>
+        <!-- Main Content -->
+        <main>
+            <!-- Display Panel -->
+            <section id="display-panel">
+                <div id="image-container">
+                    <!-- Deployment image will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Configuration Steps -->
+            <section id="config-steps">
+                <!-- Steps will be dynamically inserted here -->
+            </section>
+        </main>
+
+        <!-- Navigation Controls -->
+        <footer>
+            <button id="prev-button" disabled>Back</button>
+            <button id="next-button">Next</button>
+        </footer>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+
