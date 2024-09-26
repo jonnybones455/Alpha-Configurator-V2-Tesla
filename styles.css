@@ -18,22 +18,29 @@ header {
     height: 60px; /* Adjust as needed */
 }
 
-/* Back Buttons in Header */
-#back-to-alpha,
-#back-to-landing {
+/* Header Buttons */
+#alpha-wireless-btn,
+#deployment-type-btn {
     position: absolute;
     top: 20px;
     left: 20px;
-    background-color: transparent;
-    border: none;
+    padding: 10px 20px;
     font-size: 16px;
-    color: #0099cc;
+    background-color: #0099cc;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-#back-to-alpha:hover,
-#back-to-landing:hover {
-    text-decoration: underline;
+#alpha-wireless-btn:hover,
+#deployment-type-btn:hover {
+    background-color: #007ea6;
+}
+
+#alpha-wireless-btn:active,
+#deployment-type-btn:active {
+    background-color: #006494;
 }
 
 /* Landing Page Styling */
@@ -162,7 +169,7 @@ header {
     color: #999999;
 }
 
-.option-button:hover:not(.disabled):not(.selected) {
+.option-button:hover:not(.disabled) {
     background-color: #cccccc;
 }
 
