@@ -1,0 +1,133 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+#configurator {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #153077;
+    color: #ffffff;
+}
+
+header h1 {
+    margin: 0;
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    display: flex;
+}
+
+#display-panel {
+    flex: 1;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+#image-container {
+    position: relative;
+    width: 80%;
+    max-width: 800px;
+    padding-top: calc(2000 / 1500 * 100%); /* Maintain aspect ratio */
+}
+
+#image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#config-steps {
+    width: 400px;
+    padding: 20px;
+    background-color: #ffffff;
+    overflow-y: auto;
+    border-left: 1px solid #ddd;
+}
+
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+}
+
+.step h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-button {
+    flex: 1 1 calc(50% - 10px);
+    background-color: #f0f0f0;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.option-button.selected {
+    border-color: #0099cc;
+    background-color: #e0f7ff;
+}
+
+.option-button img {
+    max-width: 100%;
+    height: auto;
+}
+
+.option-button span {
+    display: block;
+    margin-top: 10px;
+    font-size: 16px;
+    color: #000000;
+}
+
+/* Navigation Controls */
+footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+footer button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #0099cc;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+footer button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
