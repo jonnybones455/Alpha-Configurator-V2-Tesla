@@ -68,7 +68,7 @@ const smallCellSteps = [
                 { value: '2units', label: '2 Units', image: '2units_display.png' },
                 { value: '3units', label: '3 Units', image: '3units_display.png' },
             ],
-            shroud: [],
+            shroud: [], // No options for shroud
         },
     },
 ];
@@ -87,6 +87,12 @@ function renderConfigurator() {
     // Remove previous steps but keep the progress indicator
     const steps = selectionPanel.querySelectorAll('.config-step');
     steps.forEach(step => step.remove());
+
+    // Remove existing action buttons
+    const existingActionButtons = selectionPanel.querySelector('.action-buttons');
+    if (existingActionButtons) {
+        existingActionButtons.remove();
+    }
 
     smallCellSteps.forEach((stepData, index) => {
         if (shouldDisplayStep(stepData, index)) {
@@ -120,6 +126,12 @@ function createStepSection(stepData, index) {
         options = stepData.options[dependencyValue] || [];
     } else {
         options = stepData.options;
+    }
+
+    // If there are no options (e.g., shroud selected), skip rendering options
+    if (options.length === 0 && stepData.id === 'cabinetConfiguration') {
+        // Skip rendering this step
+        return section;
     }
 
     options.forEach(option => {
@@ -181,6 +193,10 @@ function isStepActive(index) {
 
 function shouldDisplayStep(stepData, index) {
     // Display the step if all previous steps are completed
+    // Also, if there are no options (e.g., shroud selected), skip this step
+    if (stepData.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud') {
+        return false;
+    }
     return isStepActive(index);
 }
 
@@ -262,6 +278,11 @@ function renderProgressIndicator() {
     progressIndicator.innerHTML = '';
 
     smallCellSteps.forEach((step, index) => {
+        // Skip the cabinet configuration step if shroud is selected
+        if (step.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud') {
+            return;
+        }
+
         const stepDiv = document.createElement('div');
         stepDiv.classList.add('progress-step');
         stepDiv.dataset.step = index + 1;
@@ -275,10 +296,22 @@ function renderProgressIndicator() {
 }
 
 function isConfiguratorComplete() {
-    return smallCellSteps.every(step => selectedOptions[step.id]);
+    // If shroud is selected, consider the configurator complete after the cabinetType step
+    if (selectedOptions['cabinetType'] === 'shroud') {
+        return smallCellSteps.slice(0, 4).every(step => selectedOptions[step.id]);
+    }
+
+    // Check if all steps are completed
+    return smallCellSteps.every(step => selectedOptions[step.id] || (step.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud'));
 }
 
 function renderActionButtons(container) {
+    // Remove existing action buttons if any
+    const existingActionButtons = container.querySelector('.action-buttons');
+    if (existingActionButtons) {
+        existingActionButtons.remove();
+    }
+
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('action-buttons');
 
