@@ -2,18 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Macro Deployment - Coming Soon</title>
+    <title>Macro Deployment</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <!-- Back to Landing Page Button -->
-        <button id="back-to-landing" onclick="location.href='index.html'">← Deployment Type</button>
+        <!-- Back to Deployment Type Button -->
+        <button id="deployment-type-btn" onclick="location.href='index.html'">Deployment Type</button>
         <img src="images/logo.png" alt="Alpha Wireless Logo" id="logo">
     </header>
-    <main id="macro-placeholder">
-        <h1>Macro Deployment</h1>
-        <p>This feature is coming soon. Please check back later.</p>
+    <main id="configurator">
+        <!-- Image Display Area -->
+        <div id="image-display">
+            <!-- Images will be dynamically layered here -->
+            <div id="image-container"></div>
+        </div>
+
+        <!-- Selection Options -->
+        <div id="selection-panel">
+            <!-- Progress Indicator -->
+            <div id="progress-indicator">
+                <!-- Steps will be dynamically generated here -->
+            </div>
+            <!-- Steps and options will be dynamically generated -->
+        </div>
     </main>
+    <script src="macro.js"></script>
 </body>
 </html>
