@@ -61,7 +61,7 @@ const smallCellSteps = [
         options: {
             streetMicro: [
                 { value: 'bottomOfPole', label: 'Bottom of Pole', image: 'bottomOfPole_display.png' },
-                { value: 'midPole', label: 'Mid-Pole', image: 'midPole_display.png' },
+                { value: 'midPole', label: 'Mid-Pole', image: 'midPole_display.png', removeImage: 'streetMicro_display.png' },
             ],
             telecomEnclosure: [
                 { value: '1unit', label: '1 Unit', image: '1unit_display.png' },
@@ -74,6 +74,7 @@ const smallCellSteps = [
 ];
 
 let selectedOptions = {};
+let imagesToRemove = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     renderConfigurator();
@@ -164,7 +165,7 @@ function createStepSection(stepData, index) {
         button.addEventListener('mouseenter', () => {
             if (!button.classList.contains('disabled')) {
                 // Show preview of new layer
-                previewImageLayer(option.image);
+                previewImageLayer(option.image, option.removeImage);
             }
         });
 
@@ -202,6 +203,20 @@ function shouldDisplayStep(stepData, index) {
 
 function selectOption(stepId, option) {
     selectedOptions[stepId] = option.value;
+
+    // Handle images to remove
+    if (option.removeImage) {
+        imagesToRemove.push(option.removeImage);
+    } else {
+        // If the option doesn't specify images to remove, clear any previous removals for this step
+        const stepIndex = smallCellSteps.findIndex(step => step.id === stepId);
+        const options = smallCellSteps[stepIndex].options;
+        Object.values(options).flat().forEach(opt => {
+            if (opt.removeImage) {
+                imagesToRemove = imagesToRemove.filter(img => img !== opt.removeImage);
+            }
+        });
+    }
 
     // Reset dependent selections
     const stepIndex = smallCellSteps.findIndex(step => step.id === stepId);
@@ -242,7 +257,7 @@ function getSelectedImages() {
             } else {
                 optionData = step.options.find(opt => opt.value === selectedValue);
             }
-            if (optionData && optionData.image) {
+            if (optionData && optionData.image && !imagesToRemove.includes(optionData.image)) {
                 images.push(optionData.image);
             }
         }
@@ -256,9 +271,14 @@ function getSelectedImages() {
     return images;
 }
 
-function previewImageLayer(previewImageSrc) {
+function previewImageLayer(previewImageSrc, previewRemoveImage) {
     const imageContainer = document.getElementById('image-container');
-    const imagesToDisplay = getSelectedImages();
+    let imagesToDisplay = getSelectedImages();
+
+    // Handle image removal in preview
+    if (previewRemoveImage) {
+        imagesToDisplay = imagesToDisplay.filter(img => img !== previewRemoveImage);
+    }
 
     // Add the preview image to the end
     imagesToDisplay.push(previewImageSrc);
@@ -327,8 +347,14 @@ function renderActionButtons(container) {
         window.location.href = 'contact.html';
     });
 
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset';
+    resetButton.classList.add('action-button');
+    resetButton.addEventListener('click', resetConfigurator);
+
     buttonContainer.appendChild(fullscreenButton);
     buttonContainer.appendChild(contactButton);
+    buttonContainer.appendChild(resetButton);
     container.appendChild(buttonContainer);
 }
 
@@ -341,4 +367,11 @@ function openFullscreen() {
     } else if (imageDisplay.msRequestFullscreen) { /* IE11 */
         imageDisplay.msRequestFullscreen();
     }
+}
+
+function resetConfigurator() {
+    selectedOptions = {};
+    imagesToRemove = [];
+    renderConfigurator();
+    updateDisplayImage();
 }
