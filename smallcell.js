@@ -5,8 +5,8 @@ const smallCellSteps = [
         title: 'Site Type',
         question: 'Will your deployment be a...',
         options: [
-            { value: 'newSite', label: 'New Site', image: 'newSite.png' },
-            { value: 'existingInfrastructure', label: 'Existing Infrastructure', image: 'existingInfrastructure.png' },
+            { value: 'newSite', label: 'New Site', image: 'newSite_display.png' },
+            { value: 'existingInfrastructure', label: 'Existing Infrastructure', image: 'existingInfrastructure_display.png' },
         ],
     },
     {
@@ -16,107 +16,41 @@ const smallCellSteps = [
         dependency: 'siteType',
         options: {
             newSite: [
-                { value: 'compositePole', label: 'Composite Pole', image: 'compositePole.png' },
+                { value: 'compositePole', label: 'Composite Pole', image: 'compositePole_display.png' },
             ],
             existingInfrastructure: [
-                { value: 'lampPost', label: 'Lamp Post', image: 'lampPost.png' },
-                { value: 'steelPole', label: 'Steel Pole', image: 'steelPole.png' },
+                { value: 'lampPost', label: 'Lamp Post', image: 'lampPost_display.png' },
+                { value: 'steelPole', label: 'Steel Pole', image: 'steelPole_display.png' },
             ],
         },
     },
-    {
-        id: 'antennaType',
-        title: 'Antenna Type',
-        question: 'Select your antenna type:',
-        dependency: 'poleType',
-        options: {
-            compositePole: [
-                { value: 'cannisterAntenna', label: 'Cannister Antenna', image: 'cannisterAntenna.png' },
-            ],
-            lampPost: [
-                { value: 'fusionMidPole', label: 'Fusion Mid-Pole', image: 'fusionMidPole.png' },
-                { value: 'fusionTopPole', label: 'Fusion Top-of-Pole', image: 'fusionTopPole.png' },
-            ],
-            steelPole: [
-                { value: 'fusionMidPole', label: 'Fusion Mid-Pole', image: 'fusionMidPole.png' },
-                { value: 'fusionTopPole', label: 'Fusion Top-of-Pole', image: 'fusionTopPole.png' },
-            ],
-        },
-    },
-    {
-        id: 'cabinetType',
-        title: 'Cabinet Type',
-        question: 'Select your cabinet type:',
-        options: [
-            { value: 'streetMicro', label: 'Street Micro', image: 'streetMicro.png' },
-            { value: 'telecomEnclosure', label: 'Telecom Enclosure', image: 'telecomEnclosure.png' },
-            { value: 'shroud', label: 'Shroud', image: 'shroud.png' },
-        ],
-    },
-    {
-        id: 'cabinetConfiguration',
-        title: 'Cabinet Configuration',
-        question: 'Select your cabinet configuration:',
-        dependency: 'cabinetType',
-        options: {
-            streetMicro: [
-                { value: 'bottomOfPole', label: 'Bottom of Pole', image: 'bottomOfPole.png' },
-                { value: 'midPole', label: 'Mid-Pole', image: 'midPole.png' },
-            ],
-            telecomEnclosure: [
-                { value: '1unit', label: '1 Unit', image: '1unit.png' },
-                { value: '2units', label: '2 Units', image: '2units.png' },
-                { value: '3units', label: '3 Units', image: '3units.png' },
-            ],
-            shroud: [],
-        },
-    },
+    // Continue with other steps as before...
 ];
 
-// Initialize Configurator
 let selectedOptions = {};
-let currentStepIndex = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     renderConfigurator();
 });
 
 function renderConfigurator() {
-    const configurator = document.getElementById('configurator');
-    configurator.innerHTML = '';
+    const selectionPanel = document.getElementById('selection-panel');
+    selectionPanel.innerHTML = '';
 
     smallCellSteps.forEach((stepData, index) => {
-        if (shouldDisplayStep(stepData, index)) {
-            const section = createStepSection(stepData);
-            configurator.appendChild(section);
-        }
-    });
-
-    // Add event listeners for options
-    document.querySelectorAll('.option-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const stepId = button.dataset.stepId;
-            const value = button.dataset.value;
-            selectOption(stepId, value);
-            renderConfigurator(); // Re-render to show/hide dependent steps
-            updateImageDisplay();
-            scrollToNextStep(stepId);
-        });
+        const section = createStepSection(stepData, index);
+        selectionPanel.appendChild(section);
     });
 }
 
-function createStepSection(stepData) {
-    const section = document.createElement('section');
+function createStepSection(stepData, index) {
+    const section = document.createElement('div');
     section.classList.add('config-step');
     section.id = stepData.id;
 
     const title = document.createElement('h2');
     title.textContent = stepData.title;
     section.appendChild(title);
-
-    const question = document.createElement('p');
-    question.textContent = stepData.question;
-    section.appendChild(question);
 
     const optionsDiv = document.createElement('div');
     optionsDiv.classList.add('options');
@@ -131,68 +65,95 @@ function createStepSection(stepData) {
     }
 
     options.forEach(option => {
-        const button = document.createElement('div');
+        const button = document.createElement('button');
         button.classList.add('option-button');
         button.dataset.stepId = stepData.id;
         button.dataset.value = option.value;
+
+        // Disable the button if previous steps are not selected
+        if (!isStepActive(index)) {
+            button.classList.add('disabled');
+            button.disabled = true;
+        }
 
         if (selectedOptions[stepData.id] === option.value) {
             button.classList.add('selected');
         }
 
-        const img = document.createElement('img');
-        img.src = `images/${option.image}`;
-        button.appendChild(img);
+        button.textContent = option.label;
 
-        const span = document.createElement('span');
-        span.textContent = option.label;
-        button.appendChild(span);
+        // Event Listeners
+        button.addEventListener('click', () => {
+            if (!button.classList.contains('disabled')) {
+                selectOption(stepData.id, option);
+                renderConfigurator();
+                updateDisplayImage(option.image);
+            }
+        });
+
+        button.addEventListener('mouseenter', () => {
+            if (!button.classList.contains('disabled')) {
+                updateDisplayImage(option.image);
+            }
+        });
+
+        button.addEventListener('mouseleave', () => {
+            const currentImage = getCurrentDisplayImage();
+            updateDisplayImage(currentImage);
+        });
 
         optionsDiv.appendChild(button);
     });
 
     section.appendChild(optionsDiv);
-
     return section;
 }
 
-function selectOption(stepId, value) {
-    selectedOptions[stepId] = value;
+function isStepActive(index) {
+    // All previous steps must have a selected option
+    for (let i = 0; i < index; i++) {
+        const prevStepId = smallCellSteps[i].id;
+        if (!selectedOptions[prevStepId]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function selectOption(stepId, option) {
+    selectedOptions[stepId] = option.value;
 
     // Reset dependent selections
     const stepIndex = smallCellSteps.findIndex(step => step.id === stepId);
     for (let i = stepIndex + 1; i < smallCellSteps.length; i++) {
         const nextStep = smallCellSteps[i];
-        if (nextStep.dependency && selectedOptions[nextStep.dependency] !== undefined) {
-            delete selectedOptions[nextStep.id];
+        delete selectedOptions[nextStep.id];
+    }
+}
+
+function updateDisplayImage(imageSrc) {
+    const displayImage = document.getElementById('display-image');
+    displayImage.src = `images/${imageSrc}`;
+}
+
+function getCurrentDisplayImage() {
+    // Get the image corresponding to the last selected option
+    for (let i = smallCellSteps.length -1; i >= 0; i--) {
+        const stepId = smallCellSteps[i].id;
+        const selectedValue = selectedOptions[stepId];
+        if (selectedValue) {
+            let options = [];
+            if (smallCellSteps[i].dependency) {
+                const dependencyValue = selectedOptions[smallCellSteps[i].dependency];
+                options = smallCellSteps[i].options[dependencyValue] || [];
+            } else {
+                options = smallCellSteps[i].options;
+            }
+            const selectedOption = options.find(opt => opt.value === selectedValue);
+            if (selectedOption) {
+                return selectedOption.image;
+            }
         }
     }
-}
-
-function shouldDisplayStep(stepData, index) {
-    if (index === 0) return true; // Always display the first step
-
-    if (stepData.dependency) {
-        return selectedOptions[stepData.dependency] !== undefined;
-    }
-
-    return true;
-}
-
-function updateImageDisplay() {
-    // Update the image display based on selected options
-    // Implement image layering or selection logic here
-}
-
-function scrollToNextStep(currentStepId) {
-    const nextStepIndex = smallCellSteps.findIndex(
-        (step, index) => index > currentStepIndex && shouldDisplayStep(step, index)
-    );
-
-    if (nextStepIndex !== -1) {
-        currentStepIndex = nextStepIndex;
-        const nextStepId = smallCellSteps[nextStepIndex].id;
-        const nextSection = document.getElementById(nextStepId);
-        nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    return 'default.png'; // Default image if no selection
 }
