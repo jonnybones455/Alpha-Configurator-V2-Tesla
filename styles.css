@@ -18,6 +18,24 @@ header {
     height: 60px; /* Adjust as needed */
 }
 
+/* Back Buttons in Header */
+#back-to-alpha,
+#back-to-landing {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    color: #0099cc;
+    cursor: pointer;
+}
+
+#back-to-alpha:hover,
+#back-to-landing:hover {
+    text-decoration: underline;
+}
+
 /* Landing Page Styling */
 #landing-page {
     display: flex;
@@ -123,18 +141,14 @@ header {
 }
 
 .option-button {
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     border: none;
     padding: 15px;
     text-align: left;
     font-size: 16px;
     cursor: pointer;
     user-select: none;
-}
-
-.option-button.disabled {
-    background-color: #e0e0e0;
-    cursor: not-allowed;
+    color: #666666;
 }
 
 .option-button.selected {
@@ -142,9 +156,18 @@ header {
     color: #ffffff;
 }
 
-.option-button:hover:not(.disabled) {
+.option-button.disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    color: #999999;
+}
+
+.option-button:hover:not(.disabled):not(.selected) {
+    background-color: #cccccc;
+}
+
+.option-button:hover:not(.disabled).selected {
     background-color: #007ea6;
-    color: #ffffff;
 }
 
 /* Progress Indicator Styles */
