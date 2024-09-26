@@ -24,7 +24,53 @@ const smallCellSteps = [
             ],
         },
     },
-    // Continue with other steps as before...
+    {
+        id: 'antennaType',
+        title: 'Antenna Type',
+        question: 'Select your antenna type:',
+        dependency: 'poleType',
+        options: {
+            compositePole: [
+                { value: 'cannisterAntenna', label: 'Cannister Antenna', image: 'cannisterAntenna_display.png' },
+            ],
+            lampPost: [
+                { value: 'fusionMidPole', label: 'Fusion Mid-Pole', image: 'fusionMidPole_display.png' },
+                { value: 'fusionTopPole', label: 'Fusion Top-of-Pole', image: 'fusionTopPole_display.png' },
+            ],
+            steelPole: [
+                { value: 'fusionMidPole', label: 'Fusion Mid-Pole', image: 'fusionMidPole_display.png' },
+                { value: 'fusionTopPole', label: 'Fusion Top-of-Pole', image: 'fusionTopPole_display.png' },
+            ],
+        },
+    },
+    {
+        id: 'cabinetType',
+        title: 'Cabinet Type',
+        question: 'Select your cabinet type:',
+        options: [
+            { value: 'streetMicro', label: 'Street Micro', image: 'streetMicro_display.png' },
+            { value: 'telecomEnclosure', label: 'Telecom Enclosure', image: 'telecomEnclosure_display.png' },
+            { value: 'shroud', label: 'Shroud', image: 'shroud_display.png' },
+        ],
+    },
+    {
+        id: 'cabinetConfiguration',
+        title: 'Cabinet Configuration',
+        question: 'Select your cabinet configuration:',
+        dependency: 'cabinetType',
+        options: {
+            streetMicro: [
+                { value: 'bottomOfPole', label: 'Bottom of Pole', image: 'bottomOfPole_display.png' },
+                { value: 'midPole', label: 'Mid-Pole', image: 'midPole_display.png' },
+            ],
+            telecomEnclosure: [
+                { value: '1unit', label: '1 Unit', image: '1unit_display.png' },
+                { value: '2units', label: '2 Units', image: '2units_display.png' },
+                { value: '3units', label: '3 Units', image: '3units_display.png' },
+            ],
+            shroud: [],
+        },
+    },
 ];
 
 let selectedOptions = {};
@@ -34,12 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function renderConfigurator() {
+    renderProgressIndicator();
+
     const selectionPanel = document.getElementById('selection-panel');
-    selectionPanel.innerHTML = '';
+    // Remove previous steps but keep the progress indicator
+    const steps = selectionPanel.querySelectorAll('.config-step');
+    steps.forEach(step => step.remove());
 
     smallCellSteps.forEach((stepData, index) => {
-        const section = createStepSection(stepData, index);
-        selectionPanel.appendChild(section);
+        if (shouldDisplayStep(stepData, index)) {
+            const section = createStepSection(stepData, index);
+            selectionPanel.appendChild(section);
+        }
     });
 }
 
@@ -120,6 +172,11 @@ function isStepActive(index) {
     return true;
 }
 
+function shouldDisplayStep(stepData, index) {
+    // Display the step if all previous steps are completed
+    return isStepActive(index);
+}
+
 function selectOption(stepId, option) {
     selectedOptions[stepId] = option.value;
 
@@ -133,12 +190,24 @@ function selectOption(stepId, option) {
 
 function updateDisplayImage(imageSrc) {
     const displayImage = document.getElementById('display-image');
-    displayImage.src = `images/${imageSrc}`;
+
+    // Add fade-out class
+    displayImage.classList.remove('fade-in');
+    displayImage.classList.add('fade-out');
+
+    // Wait for fade-out transition to complete
+    setTimeout(() => {
+        displayImage.src = `images/${imageSrc}`;
+
+        // Add fade-in class
+        displayImage.classList.remove('fade-out');
+        displayImage.classList.add('fade-in');
+    }, 300); // Match the transition duration (300ms)
 }
 
 function getCurrentDisplayImage() {
     // Get the image corresponding to the last selected option
-    for (let i = smallCellSteps.length -1; i >= 0; i--) {
+    for (let i = smallCellSteps.length - 1; i >= 0; i--) {
         const stepId = smallCellSteps[i].id;
         const selectedValue = selectedOptions[stepId];
         if (selectedValue) {
@@ -156,4 +225,21 @@ function getCurrentDisplayImage() {
         }
     }
     return 'default.png'; // Default image if no selection
+}
+
+function renderProgressIndicator() {
+    const progressIndicator = document.getElementById('progress-indicator');
+    progressIndicator.innerHTML = '';
+
+    smallCellSteps.forEach((step, index) => {
+        const stepDiv = document.createElement('div');
+        stepDiv.classList.add('progress-step');
+        stepDiv.dataset.step = index + 1;
+
+        if (isStepActive(index) && selectedOptions[step.id]) {
+            stepDiv.classList.add('active');
+        }
+
+        progressIndicator.appendChild(stepDiv);
+    });
 }
