@@ -77,6 +77,7 @@ let selectedOptions = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     renderConfigurator();
+    updateDisplayImage(); // Initialize the image display
 });
 
 function renderConfigurator() {
@@ -93,6 +94,11 @@ function renderConfigurator() {
             selectionPanel.appendChild(section);
         }
     });
+
+    // Check if all steps are completed
+    if (isConfiguratorComplete()) {
+        renderActionButtons(selectionPanel);
+    }
 }
 
 function createStepSection(stepData, index) {
@@ -139,19 +145,20 @@ function createStepSection(stepData, index) {
             if (!button.classList.contains('disabled')) {
                 selectOption(stepData.id, option);
                 renderConfigurator();
-                updateDisplayImage(option.image);
+                updateDisplayImage();
             }
         });
 
         button.addEventListener('mouseenter', () => {
             if (!button.classList.contains('disabled')) {
-                updateDisplayImage(option.image);
+                // Show preview of new layer
+                previewImageLayer(option.image);
             }
         });
 
         button.addEventListener('mouseleave', () => {
-            const currentImage = getCurrentDisplayImage();
-            updateDisplayImage(currentImage);
+            // Remove preview and show current selection
+            updateDisplayImage();
         });
 
         optionsDiv.appendChild(button);
@@ -188,43 +195,66 @@ function selectOption(stepId, option) {
     }
 }
 
-function updateDisplayImage(imageSrc) {
-    const displayImage = document.getElementById('display-image');
+function updateDisplayImage() {
+    const imageContainer = document.getElementById('image-container');
+    imageContainer.innerHTML = ''; // Clear existing images
 
-    // Add fade-out class
-    displayImage.classList.remove('fade-in');
-    displayImage.classList.add('fade-out');
+    // Get the list of images based on selected options
+    const imagesToDisplay = getSelectedImages();
 
-    // Wait for fade-out transition to complete
-    setTimeout(() => {
-        displayImage.src = `images/${imageSrc}`;
-
-        // Add fade-in class
-        displayImage.classList.remove('fade-out');
-        displayImage.classList.add('fade-in');
-    }, 300); // Match the transition duration (300ms)
+    imagesToDisplay.forEach(imageSrc => {
+        const img = document.createElement('img');
+        img.src = `images/${imageSrc}`;
+        img.classList.add('layered-image');
+        imageContainer.appendChild(img);
+    });
 }
 
-function getCurrentDisplayImage() {
-    // Get the image corresponding to the last selected option
-    for (let i = smallCellSteps.length - 1; i >= 0; i--) {
-        const stepId = smallCellSteps[i].id;
+function getSelectedImages() {
+    const images = [];
+
+    // Add images based on selections in order
+    smallCellSteps.forEach(step => {
+        const stepId = step.id;
         const selectedValue = selectedOptions[stepId];
         if (selectedValue) {
-            let options = [];
-            if (smallCellSteps[i].dependency) {
-                const dependencyValue = selectedOptions[smallCellSteps[i].dependency];
-                options = smallCellSteps[i].options[dependencyValue] || [];
+            let optionData = null;
+            if (step.dependency) {
+                const dependencyValue = selectedOptions[step.dependency];
+                const options = step.options[dependencyValue] || [];
+                optionData = options.find(opt => opt.value === selectedValue);
             } else {
-                options = smallCellSteps[i].options;
+                optionData = step.options.find(opt => opt.value === selectedValue);
             }
-            const selectedOption = options.find(opt => opt.value === selectedValue);
-            if (selectedOption) {
-                return selectedOption.image;
+            if (optionData && optionData.image) {
+                images.push(optionData.image);
             }
         }
+    });
+
+    // If no images, return default image
+    if (images.length === 0) {
+        images.push('default.png');
     }
-    return 'default.png'; // Default image if no selection
+
+    return images;
+}
+
+function previewImageLayer(previewImageSrc) {
+    const imageContainer = document.getElementById('image-container');
+    const imagesToDisplay = getSelectedImages();
+
+    // Add the preview image to the end
+    imagesToDisplay.push(previewImageSrc);
+
+    imageContainer.innerHTML = ''; // Clear existing images
+
+    imagesToDisplay.forEach(imageSrc => {
+        const img = document.createElement('img');
+        img.src = `images/${imageSrc}`;
+        img.classList.add('layered-image');
+        imageContainer.appendChild(img);
+    });
 }
 
 function renderProgressIndicator() {
@@ -242,4 +272,40 @@ function renderProgressIndicator() {
 
         progressIndicator.appendChild(stepDiv);
     });
+}
+
+function isConfiguratorComplete() {
+    return smallCellSteps.every(step => selectedOptions[step.id]);
+}
+
+function renderActionButtons(container) {
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('action-buttons');
+
+    const fullscreenButton = document.createElement('button');
+    fullscreenButton.textContent = 'View Fullscreen';
+    fullscreenButton.classList.add('action-button');
+    fullscreenButton.addEventListener('click', openFullscreen);
+
+    const contactButton = document.createElement('button');
+    contactButton.textContent = 'Contact Us';
+    contactButton.classList.add('action-button');
+    contactButton.addEventListener('click', () => {
+        window.location.href = 'contact.html';
+    });
+
+    buttonContainer.appendChild(fullscreenButton);
+    buttonContainer.appendChild(contactButton);
+    container.appendChild(buttonContainer);
+}
+
+function openFullscreen() {
+    const imageDisplay = document.getElementById('image-display');
+    if (imageDisplay.requestFullscreen) {
+        imageDisplay.requestFullscreen();
+    } else if (imageDisplay.webkitRequestFullscreen) { /* Safari */
+        imageDisplay.webkitRequestFullscreen();
+    } else if (imageDisplay.msRequestFullscreen) { /* IE11 */
+        imageDisplay.msRequestFullscreen();
+    }
 }
