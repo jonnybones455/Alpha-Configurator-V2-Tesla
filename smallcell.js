@@ -5,8 +5,8 @@ const smallCellSteps = [
         title: 'Site Type',
         question: 'Will your deployment be a...',
         options: [
-            { value: 'newSite', label: 'New Site', image: 'newSite_display.png' },
-            { value: 'existingInfrastructure', label: 'Existing Infrastructure', image: 'existingInfrastructure_display.png' },
+            { value: 'greenfieldSite', label: 'Greenfield Site', image: 'greenfieldSite_display.png' },
+            { value: 'brownfieldSite', label: 'Brownfield Site', image: 'brownfieldSite_display.png' },
         ],
     },
     {
@@ -15,10 +15,10 @@ const smallCellSteps = [
         question: 'Select your pole type:',
         dependency: 'siteType',
         options: {
-            newSite: [
+            greenfieldSite: [
                 { value: 'compositePole', label: 'Composite Pole', image: 'compositePole_display.png' },
             ],
-            existingInfrastructure: [
+            brownfieldSite: [
                 { value: 'lampPost', label: 'Lamp Post', image: 'lampPost_display.png' },
                 { value: 'steelPole', label: 'Steel Pole', image: 'steelPole_display.png' },
             ],
@@ -51,6 +51,7 @@ const smallCellSteps = [
             { value: 'streetMicro', label: 'Street Micro', image: 'streetMicro_display.png' },
             { value: 'telecomEnclosure', label: 'Telecom Enclosure', image: 'telecomEnclosure_display.png' },
             { value: 'shroud', label: 'Shroud', image: 'shroud_display.png' },
+            { value: 'standAloneEnclosure', label: 'Stand Alone Enclosure', image: 'standAloneEnclosure_display.png' },
         ],
     },
     {
@@ -59,30 +60,29 @@ const smallCellSteps = [
         question: 'Select your cabinet configuration:',
         dependency: 'cabinetType',
         options: {
-            streetMicro: [
-                { value: 'bottomOfPole', label: 'Bottom of Pole', image: 'bottomOfPole_display.png' },
-                { value: 'midPole', label: 'Mid-Pole', image: 'midPole_display.png', removeImage: 'streetMicro_display.png' },
-            ],
             telecomEnclosure: [
                 { value: '1unit', label: '1 Unit', image: '1unit_display.png' },
                 { value: '2units', label: '2 Units', image: '2units_display.png' },
                 { value: '3units', label: '3 Units', image: '3units_display.png' },
             ],
             shroud: [], // No options for shroud
+            // For 'streetMicro' and 'standAloneEnclosure', we will skip this step
         },
     },
 ];
 
-let selectedOptions = {};
-let imagesToRemove = [];
+let selectedOptions = {}; // Stores the user's selections
+let imagesToRemove = []; // Stores images to be removed from the layered display
 
+// This function runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    renderConfigurator();
-    updateDisplayImage(); // Initialize the image display
+    renderConfigurator(); // Builds the configurator UI
+    updateDisplayImage(); // Initializes the image display
 });
 
+// Renders the configurator UI based on the current state
 function renderConfigurator() {
-    renderProgressIndicator();
+    renderProgressIndicator(); // Updates the progress bar
 
     const selectionPanel = document.getElementById('selection-panel');
     // Remove previous steps but keep the progress indicator
@@ -108,6 +108,7 @@ function renderConfigurator() {
     }
 }
 
+// Creates a section for each step with options
 function createStepSection(stepData, index) {
     const section = document.createElement('div');
     section.classList.add('config-step');
@@ -181,6 +182,7 @@ function createStepSection(stepData, index) {
     return section;
 }
 
+// Checks if a step is active based on previous selections
 function isStepActive(index) {
     // All previous steps must have a selected option
     for (let i = 0; i < index; i++) {
@@ -192,19 +194,23 @@ function isStepActive(index) {
     return true;
 }
 
+// Determines whether to display a step
 function shouldDisplayStep(stepData, index) {
-    // Display the step if all previous steps are completed
-    // Also, if there are no options (e.g., shroud selected), skip this step
-    if (stepData.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud') {
-        return false;
+    // Skip the 'cabinetConfiguration' step if certain cabinet types are selected
+    if (stepData.id === 'cabinetConfiguration') {
+        const cabinetType = selectedOptions['cabinetType'];
+        if (cabinetType === 'shroud' || cabinetType === 'streetMicro' || cabinetType === 'standAloneEnclosure') {
+            return false;
+        }
     }
     return isStepActive(index);
 }
 
+// Stores the user's selection and resets dependent selections
 function selectOption(stepId, option) {
     selectedOptions[stepId] = option.value;
 
-    // Handle images to remove
+    // Handle images to remove (if applicable)
     if (option.removeImage) {
         imagesToRemove.push(option.removeImage);
     } else {
@@ -226,6 +232,7 @@ function selectOption(stepId, option) {
     }
 }
 
+// Updates the layered image display based on selections
 function updateDisplayImage() {
     const imageContainer = document.getElementById('image-container');
     imageContainer.innerHTML = ''; // Clear existing images
@@ -241,6 +248,7 @@ function updateDisplayImage() {
     });
 }
 
+// Retrieves the list of images to display based on selections
 function getSelectedImages() {
     const images = [];
 
@@ -271,6 +279,7 @@ function getSelectedImages() {
     return images;
 }
 
+// Previews the image layer when hovering over an option
 function previewImageLayer(previewImageSrc, previewRemoveImage) {
     const imageContainer = document.getElementById('image-container');
     let imagesToDisplay = getSelectedImages();
@@ -293,14 +302,18 @@ function previewImageLayer(previewImageSrc, previewRemoveImage) {
     });
 }
 
+// Renders the progress indicator at the top
 function renderProgressIndicator() {
     const progressIndicator = document.getElementById('progress-indicator');
     progressIndicator.innerHTML = '';
 
     smallCellSteps.forEach((step, index) => {
-        // Skip the cabinet configuration step if shroud is selected
-        if (step.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud') {
-            return;
+        // Skip the 'cabinetConfiguration' step if certain cabinet types are selected
+        if (step.id === 'cabinetConfiguration') {
+            const cabinetType = selectedOptions['cabinetType'];
+            if (cabinetType === 'shroud' || cabinetType === 'streetMicro' || cabinetType === 'standAloneEnclosure') {
+                return;
+            }
         }
 
         const stepDiv = document.createElement('div');
@@ -315,16 +328,19 @@ function renderProgressIndicator() {
     });
 }
 
+// Checks if the configurator is complete
 function isConfiguratorComplete() {
-    // If shroud is selected, consider the configurator complete after the cabinetType step
-    if (selectedOptions['cabinetType'] === 'shroud') {
+    // If certain cabinet types are selected, consider the configurator complete after 'cabinetType' step
+    const cabinetType = selectedOptions['cabinetType'];
+    if (cabinetType === 'shroud' || cabinetType === 'streetMicro' || cabinetType === 'standAloneEnclosure') {
         return smallCellSteps.slice(0, 4).every(step => selectedOptions[step.id]);
     }
 
-    // Check if all steps are completed
-    return smallCellSteps.every(step => selectedOptions[step.id] || (step.id === 'cabinetConfiguration' && selectedOptions['cabinetType'] === 'shroud'));
+    // Otherwise, check if all steps are completed
+    return smallCellSteps.every(step => selectedOptions[step.id] || (step.id === 'cabinetConfiguration' && (cabinetType === 'shroud' || cabinetType === 'streetMicro' || cabinetType === 'standAloneEnclosure')));
 }
 
+// Renders the action buttons when the configurator is complete
 function renderActionButtons(container) {
     // Remove existing action buttons if any
     const existingActionButtons = container.querySelector('.action-buttons');
@@ -358,6 +374,7 @@ function renderActionButtons(container) {
     container.appendChild(buttonContainer);
 }
 
+// Opens the image display in fullscreen mode
 function openFullscreen() {
     const imageDisplay = document.getElementById('image-display');
     if (imageDisplay.requestFullscreen) {
@@ -369,6 +386,7 @@ function openFullscreen() {
     }
 }
 
+// Resets the configurator to start over
 function resetConfigurator() {
     selectedOptions = {};
     imagesToRemove = [];
