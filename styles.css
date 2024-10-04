@@ -4,6 +4,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #ffffff;
     color: #000000;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 header {
@@ -52,11 +53,15 @@ header {
     min-height: calc(100vh - 80px);
     text-align: center;
     padding: 20px;
+    overflow: hidden; /* Prevent scrolling */
 }
 
 #landing-page h1 {
     font-size: 36px;
     margin-bottom: 20px;
+    background: linear-gradient(to right, #0099cc, #153077);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 #landing-page p {
@@ -156,10 +161,11 @@ header {
     cursor: pointer;
     user-select: none;
     color: #666666;
+    transition: transform 0.2s ease; /* Add transition for transform */
 }
 
 .option-button.selected {
-    background-color: #0099cc;
+    background-color: #153077; /* Updated color for selected button */
     color: #ffffff;
 }
 
@@ -170,12 +176,10 @@ header {
 }
 
 .option-button:hover:not(.disabled) {
-    background-color: #cccccc;
+    transform: scale(1.05); /* Slightly expand on hover */
 }
 
-.option-button:hover:not(.disabled).selected {
-    background-color: #007ea6;
-}
+/* Remove hover color change */
 
 /* Progress Indicator Styles */
 #progress-indicator {
