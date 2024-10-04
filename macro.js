@@ -1,21 +1,30 @@
 // Macro Decision Tree Data
 const macroSteps = [
     {
-        id: 'antenna',
-        title: 'Antenna',
-        question: 'Select your antenna type:',
+        id: 'height',
+        title: 'Height',
+        question: 'Select the pole height:',
         options: [
-            { value: 'twoStackTriSector', label: 'Two Stack Tri-Sector', image: 'twoStackTriSector_display.png' },
-            { value: 'singleStackTriSectorWithAAUs', label: 'Single Stack Tri-Sector with AAUs', image: 'singleStackTriSectorWithAAUs_display.png' },
+            { value: '10mPole', label: '10 Meter Pole', image: '10mPole_display.png' },
+            { value: '20mPole', label: '20 Meter Pole', image: '20mPole_display.png' },
         ],
     },
     {
-        id: 'foundation',
-        title: 'Foundation',
-        question: 'Select your foundation type:',
+        id: 'stack',
+        title: 'Stack',
+        question: 'Select the stack type:',
         options: [
-            { value: 'anchoredConcrete', label: 'Anchored Concrete', image: 'anchoredConcrete_display.png' },
-            { value: 'embeddedPin', label: 'Embedded Pin', image: 'embeddedPin_display.png' },
+            { value: 'singleStack', label: 'Single Stack', image: 'singleStack_display.png' },
+            { value: 'twoStack', label: 'Two Stack', image: 'twoStack_display.png' },
+        ],
+    },
+    {
+        id: 'aaus',
+        title: 'AAUs',
+        question: 'Are there AAUs?',
+        options: [
+            { value: 'yes', label: 'Yes', image: 'aausYes_display.png' },
+            { value: 'no', label: 'No', image: 'aausNo_display.png' },
         ],
     },
     {
@@ -23,21 +32,24 @@ const macroSteps = [
         title: 'Cabinet',
         question: 'Select your cabinet configuration:',
         options: [
-            { value: 'telecomEnclosureSingle', label: 'Telecom Enclosure (Single)', image: 'telecomEnclosureSingle_display.png' },
-            { value: 'telecomEnclosureWithJoiners', label: 'Telecom Enclosure and 2x Joiners', image: 'telecomEnclosureWithJoiners_display.png' },
+            { value: 'singleTelecomEnclosure', label: 'Single Telecom Enclosure', image: 'singleTelecomEnclosure_display.png' },
+            { value: 'telecomEnclosureWith2Joiners', label: 'Telecom Enclosure with 2 Joiners', image: 'telecomEnclosureWith2Joiners_display.png' },
+            { value: 'telecomEnclosureWith3Joiners', label: 'Telecom Enclosure with 3 Joiners', image: 'telecomEnclosureWith3Joiners_display.png' },
         ],
     },
 ];
 
-let selectedOptions = {};
+let selectedOptions = {}; // Stores the user's selections
 
+// This function runs when the page is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    renderConfigurator();
-    updateDisplayImage(); // Initialize the image display
+    renderConfigurator(); // Builds the configurator UI
+    updateDisplayImage(); // Initializes the image display
 });
 
+// Renders the configurator UI based on the current state
 function renderConfigurator() {
-    renderProgressIndicator();
+    renderProgressIndicator(); // Updates the progress bar
 
     const selectionPanel = document.getElementById('selection-panel');
     // Remove previous steps but keep the progress indicator
@@ -63,6 +75,7 @@ function renderConfigurator() {
     }
 }
 
+// Creates a section for each step with options
 function createStepSection(stepData, index) {
     const section = document.createElement('div');
     section.classList.add('config-step');
@@ -122,6 +135,7 @@ function createStepSection(stepData, index) {
     return section;
 }
 
+// Checks if a step is active based on previous selections
 function isStepActive(index) {
     // All previous steps must have a selected option
     for (let i = 0; i < index; i++) {
@@ -133,6 +147,7 @@ function isStepActive(index) {
     return true;
 }
 
+// Stores the user's selection and resets dependent selections
 function selectOption(stepId, option) {
     selectedOptions[stepId] = option.value;
 
@@ -144,6 +159,7 @@ function selectOption(stepId, option) {
     }
 }
 
+// Updates the layered image display based on selections
 function updateDisplayImage() {
     const imageContainer = document.getElementById('image-container');
     imageContainer.innerHTML = ''; // Clear existing images
@@ -159,6 +175,7 @@ function updateDisplayImage() {
     });
 }
 
+// Retrieves the list of images to display based on selections
 function getSelectedImages() {
     const images = [];
 
@@ -182,6 +199,7 @@ function getSelectedImages() {
     return images;
 }
 
+// Previews the image layer when hovering over an option
 function previewImageLayer(previewImageSrc) {
     const imageContainer = document.getElementById('image-container');
     const imagesToDisplay = getSelectedImages();
@@ -199,6 +217,7 @@ function previewImageLayer(previewImageSrc) {
     });
 }
 
+// Renders the progress indicator at the top
 function renderProgressIndicator() {
     const progressIndicator = document.getElementById('progress-indicator');
     progressIndicator.innerHTML = '';
@@ -216,10 +235,12 @@ function renderProgressIndicator() {
     });
 }
 
+// Checks if the configurator is complete
 function isConfiguratorComplete() {
     return macroSteps.every(step => selectedOptions[step.id]);
 }
 
+// Renders the action buttons when the configurator is complete
 function renderActionButtons(container) {
     // Remove existing action buttons if any
     const existingActionButtons = container.querySelector('.action-buttons');
@@ -253,6 +274,7 @@ function renderActionButtons(container) {
     container.appendChild(buttonContainer);
 }
 
+// Opens the image display in fullscreen mode
 function openFullscreen() {
     const imageDisplay = document.getElementById('image-display');
     if (imageDisplay.requestFullscreen) {
@@ -264,6 +286,7 @@ function openFullscreen() {
     }
 }
 
+// Resets the configurator to start over
 function resetConfigurator() {
     selectedOptions = {};
     renderConfigurator();
